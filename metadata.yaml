@@ -1,5 +1,7 @@
 name: astrbot_plugin_jwxt_course_push
-version: 1.0.1
+desc: 强智教务课表获取与每日上课提醒推送
+version: "1.0.1"
 author: tom
-description: 强智教务课表获取与每日上课提醒推送
 display_name: JWXT 课表提醒
+repo: ""
+astrbot_version: ">=4.0.0"
