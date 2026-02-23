@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import json
 import os
 import re
 import time
@@ -639,6 +640,16 @@ class JwxtCoursePushPlugin(Star):
         if period_idx <= 0:
             return None
         mapping = self._cfg("period_start_time_map", None)
+        if isinstance(mapping, str):
+            text = mapping.strip()
+            if text:
+                try:
+                    parsed = json.loads(text)
+                    mapping = parsed if isinstance(parsed, dict) else None
+                except Exception:
+                    mapping = None
+            else:
+                mapping = None
         if not isinstance(mapping, dict):
             mapping = {
                 "1": "08:30",

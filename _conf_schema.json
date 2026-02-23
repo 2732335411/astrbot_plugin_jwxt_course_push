@@ -1,135 +1,100 @@
 {
-  "type": "object",
-  "properties": {
-    "base_url": {
-      "type": "string",
-      "title": "教务基础地址",
-      "description": "例如: http://jw.nnnu.edu.cn",
-      "default": "http://jw.nnnu.edu.cn"
-    },
-    "account": {
-      "type": "string",
-      "title": "教务账号"
-    },
-    "password": {
-      "type": "string",
-      "title": "教务密码",
-      "format": "password"
-    },
-    "max_login_attempts": {
-      "type": "integer",
-      "title": "验证码最大重试次数",
-      "default": 8,
-      "minimum": 1,
-      "maximum": 20
-    },
-    "request_timeout": {
-      "type": "number",
-      "title": "HTTP 超时(秒)",
-      "default": 20
-    },
-    "enable_daily_push": {
-      "type": "boolean",
-      "title": "启用提醒推送循环",
-      "default": true
-    },
-    "enable_file_log": {
-      "type": "boolean",
-      "title": "启用文件日志",
-      "description": "开启后会把插件运行日志写入文件，不额外打印调试日志",
-      "default": true
-    },
-    "log_file_path": {
-      "type": "string",
-      "title": "日志文件路径",
-      "description": "支持相对路径（相对插件目录）或绝对路径",
-      "default": "runtime.log"
-    },
-    "timezone": {
-      "type": "string",
-      "title": "时区",
-      "default": "Asia/Shanghai"
-    },
-    "push_prefix": {
-      "type": "string",
-      "title": "推送消息前缀",
-      "default": "【上课提醒】"
-    },
-    "session_remind_before_minutes": {
-      "type": "integer",
-      "title": "分时段提醒提前分钟",
-      "description": "上午/下午课程分别在该时长前提醒",
-      "default": 60,
-      "minimum": 1,
-      "maximum": 300
-    },
-    "morning_period_max": {
-      "type": "integer",
-      "title": "上午节次上限",
-      "description": "小于等于该节次视为上午课程",
-      "default": 5,
-      "minimum": 1,
-      "maximum": 12
-    },
-    "afternoon_period_max": {
-      "type": "integer",
-      "title": "下午节次上限",
-      "description": "大于 morning_period_max 且小于等于该值视为下午课程",
-      "default": 9,
-      "minimum": 2,
-      "maximum": 14
-    },
-    "course_cache_seconds": {
-      "type": "integer",
-      "title": "课表缓存秒数",
-      "default": 900,
-      "minimum": 60,
-      "maximum": 86400
-    },
-    "require_week_filter_for_push": {
-      "type": "boolean",
-      "title": "推送前要求按教学周过滤",
-      "description": "默认开启。未识别出当前周时跳过推送，避免误推整学期课程",
-      "default": true
-    },
-    "period_start_time_map": {
-      "type": "object",
-      "title": "节次开始时间映射",
-      "description": "键为节次数字(如 1,2,3)，值为 HH:MM；用于计算提前提醒时间",
-      "default": {
-        "1": "08:30",
-        "2": "09:15",
-        "3": "10:10",
-        "4": "10:55",
-        "5": "11:40",
-        "6": "14:20",
-        "7": "15:05",
-        "8": "16:00",
-        "9": "16:45",
-        "10": "19:10",
-        "11": "20:00",
-        "12": "20:50"
-      }
-    },
-    "current_week": {
-      "type": "integer",
-      "title": "当前教学周(可选，优先级最高)",
-      "description": "填写后将按该周过滤课表；不填则尝试 term_start_date 计算",
-      "default": 0,
-      "minimum": 0
-    },
-    "term_start_date": {
-      "type": "string",
-      "title": "学期起始日期(可选)",
-      "description": "格式 YYYY-MM-DD，例如 2026-02-23；用于自动计算当前周",
-      "default": ""
-    },
-    "term_start_week": {
-      "type": "integer",
-      "title": "起始日期对应的教学周",
-      "default": 1,
-      "minimum": 1
-    }
+  "base_url": {
+    "description": "教务基础地址，例如 http://jw.nnnu.edu.cn",
+    "type": "string",
+    "default": "http://jw.nnnu.edu.cn",
+    "hint": "必填"
   },
-  "required": ["base_url", "account", "password"]
+  "account": {
+    "description": "教务账号",
+    "type": "string",
+    "default": "",
+    "hint": "必填"
+  },
+  "password": {
+    "description": "教务密码",
+    "type": "string",
+    "default": "",
+    "hint": "必填"
+  },
+  "max_login_attempts": {
+    "description": "验证码最大重试次数",
+    "type": "int",
+    "default": 8
+  },
+  "request_timeout": {
+    "description": "HTTP 超时(秒)",
+    "type": "float",
+    "default": 20.0
+  },
+  "enable_daily_push": {
+    "description": "是否启用提醒推送循环",
+    "type": "bool",
+    "default": true
+  },
+  "enable_file_log": {
+    "description": "是否启用文件日志",
+    "type": "bool",
+    "default": true
+  },
+  "log_file_path": {
+    "description": "日志文件路径（相对路径相对插件目录）",
+    "type": "string",
+    "default": "runtime.log"
+  },
+  "timezone": {
+    "description": "时区",
+    "type": "string",
+    "default": "Asia/Shanghai"
+  },
+  "push_prefix": {
+    "description": "推送消息前缀",
+    "type": "string",
+    "default": "【上课提醒】"
+  },
+  "session_remind_before_minutes": {
+    "description": "上午/下午课程提前提醒分钟",
+    "type": "int",
+    "default": 60
+  },
+  "morning_period_max": {
+    "description": "上午节次上限（<= 该节次算上午）",
+    "type": "int",
+    "default": 5
+  },
+  "afternoon_period_max": {
+    "description": "下午节次上限（> morning 且 <= 该值算下午）",
+    "type": "int",
+    "default": 9
+  },
+  "course_cache_seconds": {
+    "description": "课表缓存秒数",
+    "type": "int",
+    "default": 900
+  },
+  "require_week_filter_for_push": {
+    "description": "推送前要求按教学周过滤（无法确定周次则跳过推送）",
+    "type": "bool",
+    "default": true
+  },
+  "period_start_time_map": {
+    "description": "节次开始时间映射（可选，建议留空使用内置武鸣作息）",
+    "type": "string",
+    "default": ""
+  },
+  "current_week": {
+    "description": "当前教学周（可选，优先级最高）",
+    "type": "int",
+    "default": 0
+  },
+  "term_start_date": {
+    "description": "学期起始日期（可选，格式 YYYY-MM-DD）",
+    "type": "string",
+    "default": ""
+  },
+  "term_start_week": {
+    "description": "起始日期对应的教学周",
+    "type": "int",
+    "default": 1
+  }
 }

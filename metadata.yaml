@@ -1,21 +1,5 @@
 name: astrbot_plugin_jwxt_course_push
-desc: 强智教务课表获取与每日上课提醒推送
-version: v1.0.0
+version: 1.0.1
 author: tom
-repo: ""
-keywords:
-  - jwxt
-  - 课表
-  - 上课提醒
-  - 教务
-help: |
-  /jwxt_today 查询今日课表
-  /jwxt_tomorrow 查询明日课表
-  /jwxt_push_on 在当前会话开启每日提醒
-  /jwxt_push_off 在当前会话关闭每日提醒
-  /jwxt_push_status 查看提醒状态
-  /jwxt_push_test 立即生成一次提醒内容
-support_platforms:
-  - aiocqhttp
-  - qqofficial
-astrbot_version: ">=4.0.0"
+description: 强智教务课表获取与每日上课提醒推送
+display_name: JWXT 课表提醒
