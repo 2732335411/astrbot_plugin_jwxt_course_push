@@ -36,10 +36,10 @@ class CourseItem:
 
 
 @register(
-    "astrbot_plugin_jwxt_course_push",
+    "astrbot_plugin_jwxt_course_push_v2",
     "tom",
     "强智教务课表获取与每日上课提醒推送",
-    "1.0.0",
+    "1.0.4",
     "",
 )
 class JwxtCoursePushPlugin(Star):
@@ -195,7 +195,7 @@ class JwxtCoursePushPlugin(Star):
             yield event.plain_result(f"生成测试推送失败: {e}")
 
     @filter.llm_tool(name="jwxt_get_courses")
-    async def jwxt_get_courses_tool(self, event: AstrMessageEvent, day: str):
+    async def jwxt_get_courses_tool(self, event: AstrMessageEvent, day: str) -> str:
         """获取课表信息，供大模型函数调用。
 
         Args:
@@ -204,12 +204,13 @@ class JwxtCoursePushPlugin(Star):
         try:
             target_date, day_cn = self._resolve_day_input(day)
             courses = await self._fetch_courses_for_day(day_cn)
-            yield event.plain_result(self._format_courses_message(target_date, day_cn, courses))
+            return self._format_courses_message(target_date, day_cn, courses)
         except Exception as e:
-            yield event.plain_result(f"查询课表失败: {e}")
+            self._log_exception("[jwxt-course-push] LLM 工具查询课表失败", e)
+            return f"查询课表失败: {e}"
 
     @filter.llm_tool(name="jwxt_get_push_policy")
-    async def jwxt_get_push_policy_tool(self, event: AstrMessageEvent):
+    async def jwxt_get_push_policy_tool(self, event: AstrMessageEvent) -> str:
         """获取当前插件的上课提醒策略，供大模型函数调用。"""
         remind_before = self._to_int(self._cfg("session_remind_before_minutes", 60), 60)
         morning_max = self._to_int(self._cfg("morning_period_max", 5), 5)
@@ -220,7 +221,7 @@ class JwxtCoursePushPlugin(Star):
             f"- 下午课程：节次 <= {afternoon_max} 且 > {morning_max}，首课前 {remind_before} 分钟提醒\n"
             "- 每日同一会话同一时段只推送一次"
         )
-        yield event.plain_result(msg)
+        return msg
 
     async def _push_loop(self):
         while not self._stop_event.is_set():
@@ -580,16 +581,47 @@ class JwxtCoursePushPlugin(Star):
         if not courses:
             return f"{title}\n今日无课程安排"
 
+        morning_max = self._to_int(self._cfg("morning_period_max", 5), 5)
+        afternoon_max = self._to_int(self._cfg("afternoon_period_max", 9), 9)
+        grouped: Dict[str, List[CourseItem]] = {
+            "morning": [],
+            "afternoon": [],
+            "evening": [],
+            "other": [],
+        }
+        for item in self._sort_courses(courses):
+            pidx = self._period_start_index(item.period)
+            if pidx <= 0:
+                grouped["other"].append(item)
+            elif pidx <= morning_max:
+                grouped["morning"].append(item)
+            elif pidx <= afternoon_max:
+                grouped["afternoon"].append(item)
+            else:
+                grouped["evening"].append(item)
+
         lines = [title]
-        for idx, item in enumerate(courses, start=1):
-            lines.append(f"{idx}. {item.name}")
-            lines.append(f"   时间: {item.period}")
-            if item.teacher:
-                lines.append(f"   教师: {item.teacher}")
-            if item.location:
-                lines.append(f"   地点: {item.location}")
-            if item.weeks:
-                lines.append(f"   周次: {item.weeks}")
+        sections = [
+            ("morning", "上午课程"),
+            ("afternoon", "下午课程"),
+            ("evening", "晚间课程"),
+            ("other", "其他课程"),
+        ]
+        for key, label in sections:
+            items = grouped.get(key, [])
+            if not items:
+                continue
+            lines.append("")
+            lines.append(f"【{label}】")
+            for idx, item in enumerate(items, start=1):
+                lines.append(f"{idx}. {item.name}")
+                lines.append(f"   时间: {item.period}")
+                if item.teacher:
+                    lines.append(f"   教师: {item.teacher}")
+                if item.location:
+                    lines.append(f"   地点: {item.location}")
+                if item.weeks:
+                    lines.append(f"   周次: {item.weeks}")
         return "\n".join(lines)
 
     def _build_session_message(
